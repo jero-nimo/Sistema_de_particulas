@@ -1,0 +1,151 @@
+<!--Sistema de particulas 05/06/2017
+se muestran un numero inicial de particulas, al presionar arriba o w aumenta el numero de objetos. Al presionnar abajo o s disminuyen si estan dentro del cuadro rojo
+Jeronimo Fernandez siguiendo video tutorial Gameko
+-->
+<!doctype html>
+<html lang="en">
+<head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf8" http-equiv="encoding">
+</head>
+
+<body>
+	<canvas id="gameCanvas" width="800" height="600"></canvas>
+
+	<script type="text/javascript">
+		alert("Al presionar arriba o w aumenta el numero de objetos. Al presionnar abajo o s disminuyen si estan dentro del cuadro rojo");
+		
+		const KEY_LETTER_W = 87;
+		const KEY_LETTER_S = 83;
+		const KEY_ARROW_UP = 38;
+		const KEY_ARROW_DOWN = 40;
+		const START_BALLS = 20;
+
+
+		function BallClass()
+		{
+			this.size = 5;
+			this.x;
+			this.y;
+			this.velX;
+			this.velY;
+
+			this.move = function()
+			{
+				this.x += this.velX;
+				this.y += this.velY;
+
+				if (this.x < this.size || this.x > canvas.width - this.size)
+				{
+					this.velX *= -1;
+				}
+				if (this.y < this.size || this.y > canvas.height - this.size)
+				{
+					this.velY *= -1;
+				}
+			}
+
+			this.draw = function()
+			{
+				DrawCircle(this.x, this.y, this.size, "white");
+			}
+		}//Final de clase balls
+
+
+		var canvas, canvasContext;
+		var ballList = [];
+		var remX = 300;
+		var remY = 100;
+		var remW = 390;
+		var remH = 230;
+
+		function AddBall()
+		{
+			var tempBall = new BallClass();
+			tempBall.x = Math.random()*(canvas.width-2*tempBall.size) + tempBall.size;
+			tempBall.y = Math.random()*(canvas.height-2*tempBall.size) + tempBall.size;
+			tempBall.velX = 5-Math.random()*10;
+			tempBall.velY = 5-Math.random()*10;
+			ballList.push(tempBall);
+		}
+
+		function RemoveBall()
+		{
+			for (var i=ballList.length-1; i>=0; i--)
+			{
+				if (ballList[i].x>remX && ballList[i].y>remY && ballList[i].x<remX+remW && ballList[i].y<remY+remH)
+				{
+					ballList.splice(i, 1); //Funcion que remuve un elemento de una lista y la re-arregla	
+				}
+			}
+		}
+
+		function keyPressed(evnt)
+		{
+			if (evnt.keyCode == KEY_LETTER_W || evnt.keyCode == KEY_ARROW_UP)
+			{
+				AddBall();
+			}
+			if (evnt.keyCode == KEY_LETTER_S || evnt.keyCode == KEY_ARROW_DOWN)
+			{
+				RemoveBall();
+			}
+		}
+
+		window.onload = function()
+		{
+			canvas = document.getElementById("gameCanvas");
+			canvasContext = canvas.getContext("2d");
+
+			for(var i = 0; i<START_BALLS; i++)
+			{
+				AddBall();
+			}
+
+			document.addEventListener("keydown", keyPressed);
+
+			var framesPerSecond = 120;
+			setInterval(Update, 1000/framesPerSecond);
+		}
+
+		function Update()
+		{
+			DrawAll();
+			MoveAll();
+		}
+
+		function MoveAll()
+		{
+			for (var i=0; i<ballList.length; i++)
+			{
+				ballList[i].move();
+			}
+		}
+
+		function DrawAll()
+		{
+			DrawRect(0, 0, canvas.width, canvas.height, "black");
+
+			DrawRect(remX, remY, remW, remH, "red");
+
+			for (var i=0; i<ballList.length; i++)
+			{
+				ballList[i].draw();
+			}
+		}
+
+		function DrawRect(topLeftX, topLeftY, boxWidth, boxHeight, color)
+		{
+			canvasContext.fillStyle = color;
+			canvasContext.fillRect(topLeftX, topLeftY, boxWidth, boxHeight);
+		}
+
+		function DrawCircle(centerX, centerY, radius, color)
+		{
+			canvasContext.fillStyle = color;
+			canvasContext.beginPath();
+			canvasContext.arc(centerX, centerY, radius, 0, Math.PI*2, true);
+			canvasContext.fill();
+		}
+	</script>
+</body>
